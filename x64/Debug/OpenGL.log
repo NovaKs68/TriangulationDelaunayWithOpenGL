@@ -1,0 +1,5 @@
+﻿  main.cpp
+C:\Users\wille\source\repos\OpenGL\parser.h(25,2): warning C4091: 'static ': ignored on left of 'Parser' when no variable is declared
+C:\Users\wille\source\repos\OpenGL\main.cpp(180,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\wille\source\repos\OpenGL\main.cpp(327,101): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  OpenGL.vcxproj -> C:\Users\wille\source\repos\OpenGL\x64\Debug\OpenGL.exe
