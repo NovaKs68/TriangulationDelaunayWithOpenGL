@@ -19,170 +19,182 @@
 #include"VBO.h"
 #include"EBO.h"
 
-const unsigned int width = 800;
-const unsigned int height = 800;
+const unsigned int width = 1600;
+const unsigned int height = 1200;
 
 // Range les points de gauche à droite et de haut en bas
 bool sortPoints(Point a, Point b) {
-    return (a.x() < b.x() ? true : (a.x() == b.x()) ? a.y() < b.y() : false);
+	return (a.x() < b.x() ? true : (a.x() == b.x()) ? a.y() < b.y() : false);
 }
 
 Carte triangulation(const vector<Point>& T, Carte& C) {
-    DemiCote* premierDemiCote;
+	DemiCote* premierDemiCote;
 
-    // Créer le premier coté
-    if (T.at(1).y() < T.at(0).y()) {
-        premierDemiCote = C.ajouteCote(T.at(0), T.at(1));
-    }
-    else {
-        premierDemiCote = C.ajouteCote(T.at(1), T.at(0));
-    }
+	// Créer le premier coté
+	if (T.at(1).y() < T.at(0).y()) {
+		premierDemiCote = C.ajouteCote(T.at(0), T.at(1));
+	}
+	else {
+		premierDemiCote = C.ajouteCote(T.at(1), T.at(0));
+	}
 
-    // Définir le demi cote particulier qui a l'exterieur sur sa gauche
-    C.changeDemiCoteParticulier(premierDemiCote);
+	// Définir le demi cote particulier qui a l'exterieur sur sa gauche
+	C.changeDemiCoteParticulier(premierDemiCote);
 
-    // Parcours tous les points
-    for (auto it = T.begin() + 2; it != T.end(); ++it) {
+	// Parcours tous les points
+	for (auto it = T.begin() + 2; it != T.end(); ++it) {
 
-        DemiCote* nextDemiCote = premierDemiCote;
+		DemiCote* nextDemiCote = premierDemiCote;
 
-        // Premier demi cote du nouveau point
-        DemiCote* demiCoteNouveauPoint = C.ajouteCote(*it, nextDemiCote->precedent());
+		// Premier demi cote du nouveau point
+		DemiCote* demiCoteNouveauPoint = C.ajouteCote(*it, nextDemiCote->precedent());
 
-        while (0 > (*it).aGauche(nextDemiCote->coordonnees(), nextDemiCote->oppose()->coordonnees())) {
-            nextDemiCote = nextDemiCote->oppose()->suivant();
-            C.ajouteCote(demiCoteNouveauPoint, nextDemiCote->precedent());
+		while (0 > (*it).aGauche(nextDemiCote->coordonnees(), nextDemiCote->oppose()->coordonnees())) {
+			nextDemiCote = nextDemiCote->oppose()->suivant();
+			C.ajouteCote(demiCoteNouveauPoint, nextDemiCote->precedent());
 
-        }
+		}
 
-        // Repartir du milieu dans l'autre sens
-        nextDemiCote = premierDemiCote->precedent()->precedent();
+		// Repartir du milieu dans l'autre sens
+		nextDemiCote = premierDemiCote->precedent()->precedent();
 
-        while (0 < (*it).aGauche(nextDemiCote->coordonnees(), nextDemiCote->oppose()->coordonnees())) {
-            nextDemiCote = nextDemiCote->oppose()->precedent();
-            demiCoteNouveauPoint = C.ajouteCote(demiCoteNouveauPoint, nextDemiCote);
-        }
+		while (0 < (*it).aGauche(nextDemiCote->coordonnees(), nextDemiCote->oppose()->coordonnees())) {
+			nextDemiCote = nextDemiCote->oppose()->precedent();
+			demiCoteNouveauPoint = C.ajouteCote(demiCoteNouveauPoint, nextDemiCote);
+		}
 
-        premierDemiCote = demiCoteNouveauPoint->suivant();
+		premierDemiCote = demiCoteNouveauPoint->suivant();
 
-        C.changeDemiCoteParticulier(premierDemiCote);
-    }
+		C.changeDemiCoteParticulier(premierDemiCote);
+	}
 
-    return C;
+	return C;
 }
 
 void delaunay(Carte& C) {
-    // Marque l'enveloppe convexe pour ne pas la calculer dans l'algorithme flip
-    auto currentDemiCote = C.demiCoteParticulier();
-    do {
-        currentDemiCote->changeMarque(1);
-        currentDemiCote->oppose()->changeMarque(1);
-        currentDemiCote = currentDemiCote->oppose()->suivant();
-    } while (C.demiCoteParticulier() != currentDemiCote);
+	// Marque l'enveloppe convexe pour ne pas la calculer dans l'algorithme flip
+	auto currentDemiCote = C.demiCoteParticulier();
+	do {
+		currentDemiCote->changeMarque(1);
+		currentDemiCote->oppose()->changeMarque(1);
+		currentDemiCote = currentDemiCote->oppose()->suivant();
+	} while (C.demiCoteParticulier() != currentDemiCote);
 
 
-    stack<DemiCote*> pile;
+	stack<DemiCote*> pile;
 
-    // Rempli la pile des demiCotes internes de la triangulation
-    for (int i = 0; i < C.nbSommets(); i++) {
-        auto demiCoteDuSommet = C.sommet(i)->demiCote();
+	// Rempli la pile des demiCotes internes de la triangulation
+	for (int i = 0; i < C.nbSommets(); i++) {
+		auto demiCoteDuSommet = C.sommet(i)->demiCote();
 
-        do {
-            // Ignore la marque 1
-            if (demiCoteDuSommet->marque() == 0) {
-                pile.push(demiCoteDuSommet); // Ajoute le demiCote à la pile
-                demiCoteDuSommet->changeMarque(1); // Marque 1 pour dire qu'on est déjà passé dessus
-                demiCoteDuSommet->oppose()->changeMarque(1);
-            }
-            demiCoteDuSommet = demiCoteDuSommet->suivant();
+		do {
+			// Ignore la marque 1
+			if (demiCoteDuSommet->marque() == 0) {
+				pile.push(demiCoteDuSommet); // Ajoute le demiCote à la pile
+				demiCoteDuSommet->changeMarque(1); // Marque 1 pour dire qu'on est déjà passé dessus
+				demiCoteDuSommet->oppose()->changeMarque(1);
+			}
+			demiCoteDuSommet = demiCoteDuSommet->suivant();
 
-        } while (demiCoteDuSommet != C.sommet(i)->demiCote());
-    }
+		} while (demiCoteDuSommet != C.sommet(i)->demiCote());
+	}
 
-    // Parcourir tous les demiCote de la pile pour flip les triangles illégaux
-    while (pile.size() > 0) {
+	// Parcourir tous les demiCote de la pile pour flip les triangles illégaux
+	while (pile.size() > 0) {
 
 
-        // Prendre le premier DemiCote de la pile
-        auto premierDemiCote = pile.top();
-        pile.pop();
-        premierDemiCote->changeMarque(0);
-        premierDemiCote->oppose()->changeMarque(0);
+		// Prendre le premier DemiCote de la pile
+		auto premierDemiCote = pile.top();
+		pile.pop();
+		premierDemiCote->changeMarque(0);
+		premierDemiCote->oppose()->changeMarque(0);
 
-        auto a = premierDemiCote->coordonnees();
-        auto b = premierDemiCote->oppose()->coordonnees();
-        auto c = premierDemiCote->suivant()->oppose()->coordonnees();
-        auto d = premierDemiCote->precedent()->oppose()->coordonnees();
+		auto a = premierDemiCote->coordonnees();
+		auto b = premierDemiCote->oppose()->coordonnees();
+		auto c = premierDemiCote->suivant()->oppose()->coordonnees();
+		auto d = premierDemiCote->precedent()->oppose()->coordonnees();
 
-        auto dansCercle = d.dansCercle(a, b, c);
+		auto dansCercle = d.dansCercle(a, b, c);
 
-        if (dansCercle > 0) {
+		if (dansCercle > 0) {
 
-            if (premierDemiCote->suivant()->oppose()->marque() == 0) {
-                premierDemiCote->suivant()->changeMarque(1);
-                premierDemiCote->suivant()->oppose()->changeMarque(1);
-                pile.push(premierDemiCote->suivant()->oppose());
-            }
+			if (premierDemiCote->suivant()->oppose()->marque() == 0) {
+				premierDemiCote->suivant()->changeMarque(1);
+				premierDemiCote->suivant()->oppose()->changeMarque(1);
+				pile.push(premierDemiCote->suivant()->oppose());
+			}
 
-            if (premierDemiCote->suivant()->oppose()->suivant()->marque() == 0) {
-                premierDemiCote->suivant()->oppose()->suivant()->changeMarque(1);
-                premierDemiCote->suivant()->oppose()->suivant()->oppose()->changeMarque(1);
-                pile.push(premierDemiCote->suivant()->oppose()->suivant());
-            }
+			if (premierDemiCote->suivant()->oppose()->suivant()->marque() == 0) {
+				premierDemiCote->suivant()->oppose()->suivant()->changeMarque(1);
+				premierDemiCote->suivant()->oppose()->suivant()->oppose()->changeMarque(1);
+				pile.push(premierDemiCote->suivant()->oppose()->suivant());
+			}
 
-            if (premierDemiCote->precedent()->oppose()->marque() == 0) {
-                premierDemiCote->precedent()->changeMarque(1);
-                premierDemiCote->precedent()->oppose()->changeMarque(1);
-                pile.push(premierDemiCote->precedent()->oppose());
-            }
+			if (premierDemiCote->precedent()->oppose()->marque() == 0) {
+				premierDemiCote->precedent()->changeMarque(1);
+				premierDemiCote->precedent()->oppose()->changeMarque(1);
+				pile.push(premierDemiCote->precedent()->oppose());
+			}
 
-            if (premierDemiCote->precedent()->oppose()->precedent()->marque() == 0) {
-                premierDemiCote->precedent()->oppose()->precedent()->changeMarque(1);
-                premierDemiCote->precedent()->oppose()->precedent()->oppose()->changeMarque(1);
-                pile.push(premierDemiCote->precedent()->oppose()->precedent());
-            }
+			if (premierDemiCote->precedent()->oppose()->precedent()->marque() == 0) {
+				premierDemiCote->precedent()->oppose()->precedent()->changeMarque(1);
+				premierDemiCote->precedent()->oppose()->precedent()->oppose()->changeMarque(1);
+				pile.push(premierDemiCote->precedent()->oppose()->precedent());
+			}
 
-            C.flip(premierDemiCote);
-        }
-    }
+			C.flip(premierDemiCote);
+		}
+	}
 }
 
 int main()
 {
-    const string cheminAccesTexte = ".\\ile Saint Christophe.txt";
-    const string cheminAccesOBJ = ".\\resultat.obj";
+	const string cheminAccesTexte = ".\\ile Saint Christophe.txt";
+	const string cheminAccesOBJ = ".\\resultat.obj";
 
-    Carte C = Carte();
-    vector<Point> nuagePoints;
+	Carte C = Carte();
+	vector<Point> nuagePoints;
 
-    // Seed le random
-    srand(time(0));
+	// Seed le random
+	srand(time(0));
 
-    // Parse le fichier texte en points
-    Parser parser;
-    nuagePoints = parser.texteEnPoints(cheminAccesTexte);
+	// Parse le fichier texte en points
+	Parser parser;
+	nuagePoints = parser.texteEnPoints(cheminAccesTexte);
 
-    // Supprime tous les points dupliqués
-    std::sort(nuagePoints.begin(), nuagePoints.end(), sortPoints);
-    nuagePoints.erase(unique(nuagePoints.begin(), nuagePoints.end()), nuagePoints.end());
+	// Supprime tous les points dupliqués
+	std::sort(nuagePoints.begin(), nuagePoints.end(), sortPoints);
+	nuagePoints.erase(unique(nuagePoints.begin(), nuagePoints.end()), nuagePoints.end());
 
 	// Triangule
-    C = triangulation(nuagePoints, C);
-    delaunay(C);
+	C = triangulation(nuagePoints, C);
+	delaunay(C);
 
 	// Affiche tous les points sur la fenêtre
 	// (agrandissement de la fenêtre pour que tous les points soient visibles)
 	// opengraphsize(tailleDeFenetre + 50, tailleDeFenetre + 50);
-    // trace(C);
-    /*getch();
-    closegraph();*/
+	// trace(C);
+	/*getch();
+	closegraph();*/
 
 	// Create file obj with triangulation
-	parser.carteEnOBJ(C, cheminAccesOBJ);
+	// parser.carteEnOBJ(C, cheminAccesOBJ);
 
 	// Initialize indices and vertices with the triangulation
-	std::tuple<vector<GLfloat>, vector<GLuint>> verticesIndices = parser.carteEnVerticesIndices(C);	 
+	std::tuple<vector<GLfloat>, vector<GLuint>> verticesIndices = parser.carteEnVerticesIndices(C);
 
+	// GLfloat* a = vertices.data();
+	GLfloat vertices[100000];
+	for (int i = 0; i < std::get<0>(verticesIndices).size(); i++)
+	{
+		vertices[i] = std::get<0>(verticesIndices)[i];
+	}
+	// GLuint* b = indices.data();
+	GLuint indices[100000];
+	for (int i = 0; i < std::get<1>(verticesIndices).size(); i++)
+	{
+		indices[i] = std::get<1>(verticesIndices)[i];
+	}
 
 	// Initialize GLFW
 	glfwInit();
@@ -221,14 +233,13 @@ int main()
 	VAO1.Bind();
 
 	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO1(&std::get<0>(verticesIndices)[0], std::get<0>(verticesIndices).size());
+	VBO VBO1(vertices, sizeof(vertices));
 	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(&std::get<1>(verticesIndices)[0], std::get<1>(verticesIndices).size());
+	EBO EBO1(indices, sizeof(indices));
 
 	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
 	VBO1.Unbind();
@@ -246,8 +257,8 @@ int main()
 	std::string texturePath = "./brick.png";
 
 	// Texture
-	/*Texture brickTex((texturePath).c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	brickTex.texUnit(shaderProgram, "tex0", 0);*/
+	Texture brickTex((texturePath).c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	brickTex.texUnit(shaderProgram, "tex0", 0);
 
 	// Original code from the tutorial
 	/*Texture brickTex("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -303,7 +314,7 @@ int main()
 		// Bind the VAO so OpenGL knows to use it
 		VAO1.Bind();
 		// Draw primitives, number of indices, datatype of indices, index of indices
-		glDrawElements(GL_TRIANGLES, std::get<1>(verticesIndices).size() / sizeof(int), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		// Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events

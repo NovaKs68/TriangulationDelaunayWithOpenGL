@@ -4,6 +4,10 @@
 #include <iostream>
 #include <fstream>
 #include <stack>
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <cmath>
 
 // Function to print the
 // index of an element
@@ -11,14 +15,14 @@ int Parser::getIndex(vector<Point> v, Point K)
 {
     auto it = find(v.begin(), v.end(), K);
 
-    return it - v.begin() + 1;
+    return it - v.begin();
 }
 
 std::vector<Point> Parser::texteEnPoints(const std::string cheminAccesTexte) const
 {
     vector<Point> nuagePoints;
 
-	// Lis le fichier ligne par ligne
+    // Lis le fichier ligne par ligne
     std::ifstream file(cheminAccesTexte);
     if (file.is_open()) {
         std::string line;
@@ -84,11 +88,11 @@ void Parser::carteEnOBJ(const Carte C, const std::string cheminAccesOBJ) {
 
                 std::string s;
                 s.append("f ");
-                s.append(std::to_string(getIndex(sommets, a)));
+                s.append(std::to_string(getIndex(sommets, a) + 1));
                 s.append(" ");
-                s.append(std::to_string(getIndex(sommets, b)));
+                s.append(std::to_string(getIndex(sommets, b) + 1));
                 s.append(" ");
-                s.append(std::to_string(getIndex(sommets, c)));
+                s.append(std::to_string(getIndex(sommets, c) + 1));
                 myfile << s << endl;
             }
             demiCoteDuSommet = demiCoteDuSommet->suivant();
@@ -104,17 +108,22 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
     vector<GLuint> indices;
     vector<Point> sommets;
 
+    int maxValue = 0;
+
+    for (int i = 0; i < C.nbSommets(); i++) {
+        auto sommet = C.sommet(i);
+        auto max = std::max(sommet->coordonnees().x(), sommet->coordonnees().y());
+        if (maxValue < max) {
+            maxValue = max;
+        }
+    }
+
     for (size_t i = 0; i < C.nbSommets(); i++)
     {
         auto sommet = C.sommet(i);
         sommets.push_back(sommet->coordonnees());
 
-        if (sommet->coordonnees().x() < 1 && sommet->coordonnees().y() < 1) {
-            auto test = "";
-        }
-        
-        vertices.insert(vertices.end(), { (float)sommet->coordonnees().x(), (float)sommet->coordonnees().z(), (float)sommet->coordonnees().y(), 0.83f, 0.70f, 0.44f, 0.0f, 0.0f });
-
+        vertices.insert(vertices.end(), { (float)sommet->coordonnees().x() / maxValue, (float)sommet->coordonnees().y() / maxValue, (float)sommet->coordonnees().z() / maxValue, 0.83f, 0.70f, 0.44f });
     }
 
     // Marque l'enveloppe convexe
@@ -124,7 +133,6 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
         currentDemiCote->oppose()->changeMarque(3);
         currentDemiCote = currentDemiCote->oppose()->suivant();
     } while (C.demiCoteParticulier() != currentDemiCote);
-
 
     for (int i = 0; i < C.nbSommets(); i++) {
         auto demiCoteDuSommet = C.sommet(i)->demiCote();
@@ -136,10 +144,6 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
                 auto a = demiCoteDuSommet->coordonnees();
                 auto b = demiCoteDuSommet->oppose()->coordonnees();
                 auto c = demiCoteDuSommet->suivant()->oppose()->coordonnees();
-                
-                if (getIndex(sommets, a) < 0 || getIndex(sommets, b) < 0) {
-                    auto test = "";
-                }
 
                 indices.insert(indices.end(), { (unsigned int)getIndex(sommets, a), (unsigned int)getIndex(sommets, b), (unsigned int)getIndex(sommets, c) });
             }
@@ -164,6 +168,8 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
     //    2, 3, 4,
     //    3, 0, 4
     //};
+
+    // indices.erase(indices.begin(), indices.begin() + 20000);
         
     return std::tuple<vector<GLfloat>, vector<GLuint>>(vertices, indices);
     
