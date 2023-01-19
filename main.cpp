@@ -1,10 +1,10 @@
-#include<iostream>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include<stb/stb_image.h>
-#include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb/stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 #include <stack>
 
@@ -172,13 +172,12 @@ int main()
 
 	// Affiche tous les points sur la fenêtre
 	// (agrandissement de la fenêtre pour que tous les points soient visibles)
-	// opengraphsize(tailleDeFenetre + 50, tailleDeFenetre + 50);
-	// trace(C);
-	/*getch();
-	closegraph();*/
+	opengraphsize(tailleDeFenetre + 50, tailleDeFenetre + 50);
 
 	// Create file obj with triangulation
-	// parser.carteEnOBJ(C, cheminAccesOBJ);
+	parser.carteEnOBJ(C, cheminAccesOBJ);
+
+	trace(C);
 
 	// Initialize indices and vertices with the triangulation
 	std::tuple<vector<GLfloat>, vector<GLuint>> verticesIndices = parser.carteEnVerticesIndices(C);
@@ -248,22 +247,6 @@ int main()
 	// Gets ID of uniform called "scale"
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
-	/*
-	* I'm doing this relative path thing in order to centralize all the resources into one folder and not
-	* duplicate them between tutorial folders. You can just copy paste the resources from the 'Resources'
-	* folder and then give a relative path from this folder to whatever resource you want to get to.
-	* Also note that this requires C++17, so go to Project Properties, C/C++, Language, and select C++17
-	*/
-	std::string texturePath = "./brick.png";
-
-	// Texture
-	Texture brickTex((texturePath).c_str(), GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	brickTex.texUnit(shaderProgram, "tex0", 0);
-
-	// Original code from the tutorial
-	/*Texture brickTex("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
-	brickTex.texUnit(shaderProgram, "tex0", 0);*/
-
 	// Variables that help the rotation of the pyramid
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
@@ -309,8 +292,6 @@ int main()
 
 		// Assigns a value to the uniform; NOTE: Must always be done after activating the Shader Program
 		glUniform1f(uniID, 0.5f);
-		// Binds texture so that is appears in rendering
-		// brickTex.Bind();
 		// Bind the VAO so OpenGL knows to use it
 		VAO1.Bind();
 		// Draw primitives, number of indices, datatype of indices, index of indices
@@ -327,7 +308,6 @@ int main()
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
-	// brickTex.Delete();
 	shaderProgram.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);

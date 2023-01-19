@@ -1,10 +1,6 @@
-﻿  main.cpp
-C:\Users\wille\source\repos\OpenGL\parser.h(25,2): warning C4091: 'static ': ignored on left of 'Parser' when no variable is declared
-C:\Users\wille\source\repos\OpenGL\main.cpp(159,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  parser.cpp
+﻿  parser.cpp
 C:\Users\wille\source\repos\OpenGL\parser.h(25,2): warning C4091: 'static ': ignored on left of 'Parser' when no variable is declared
 C:\Users\wille\source\repos\OpenGL\parser.cpp(18,15): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
 C:\Users\wille\source\repos\OpenGL\parser.cpp(55,33): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\wille\source\repos\OpenGL\parser.cpp(123,33): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  Generating Code...
+C:\Users\wille\source\repos\OpenGL\parser.cpp(130,33): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   OpenGL.vcxproj -> C:\Users\wille\source\repos\OpenGL\x64\Debug\OpenGL.exe

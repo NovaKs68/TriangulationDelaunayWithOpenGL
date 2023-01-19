@@ -108,13 +108,20 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
     vector<GLuint> indices;
     vector<Point> sommets;
 
-    int maxValue = 0;
+    int maxXYValue = 0;
+    int maxZValue = 0;
 
+    // Calcul max value for each dimension
     for (int i = 0; i < C.nbSommets(); i++) {
         auto sommet = C.sommet(i);
         auto max = std::max(sommet->coordonnees().x(), sommet->coordonnees().y());
-        if (maxValue < max) {
-            maxValue = max;
+        
+        if (maxXYValue < max) {
+            maxXYValue = max;
+        }
+
+        if (maxZValue < sommet->coordonnees().z()) {
+            maxZValue = sommet->coordonnees().z();
         }
     }
 
@@ -123,7 +130,26 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
         auto sommet = C.sommet(i);
         sommets.push_back(sommet->coordonnees());
 
-        vertices.insert(vertices.end(), { (float)sommet->coordonnees().x() / maxValue, (float)sommet->coordonnees().y() / maxValue, (float)sommet->coordonnees().z() / maxValue, 0.83f, 0.70f, 0.44f });
+        // Light blue for the top of the ocean and grey with white on the top of the montaine
+        float colorR = 255 / (float)(maxZValue - sommet->coordonnees().z());
+        float colorG = 255 / (float)(maxZValue - sommet->coordonnees().z());
+        float colorB = 255 / (float)(maxZValue - sommet->coordonnees().z());
+        if (sommet->coordonnees().z() < 50) { // Dark blue in the bottom of the ocean
+            colorB = 255;
+        }
+        else if (sommet->coordonnees().z() >= 50 && sommet->coordonnees().z() < 250) { // Display green in the middle of ilands
+            colorG = (255 * (1 - (float)(sommet->coordonnees().z() / maxZValue)));
+            float colorR = 255;
+            float colorB = 255;
+        }
+        //else if (sommet->coordonnees().z() == maxZValue) { // Display white for the last triangle
+        //    float colorR = 255;
+        //    float colorG = 255;
+        //    float colorB = 255;
+        //}
+        
+
+        vertices.insert(vertices.end(), { (float)sommet->coordonnees().x() / maxXYValue, (float)sommet->coordonnees().y() / maxXYValue, (float)sommet->coordonnees().z() / maxXYValue, colorR, colorG, colorB });
     }
 
     // Marque l'enveloppe convexe
@@ -151,26 +177,6 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
 
         } while (demiCoteDuSommet != C.sommet(i)->demiCote());
     }
-
-    //vertices = { //     COORDINATES     /        COLORS      /   TexCoord  //
-    //        -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-    //        -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-    //         0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-    //         0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-    //         0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
-    //};
-
-    //indices = {
-    //    0, 1, 2,
-    //    0, 2, 3,
-    //    0, 1, 4,
-    //    1, 2, 4,
-    //    2, 3, 4,
-    //    3, 0, 4
-    //};
-
-    // indices.erase(indices.begin(), indices.begin() + 20000);
         
     return std::tuple<vector<GLfloat>, vector<GLuint>>(vertices, indices);
-    
 }

@@ -6,7 +6,7 @@
 // trace un segment entre deux points a et b
 void segment(const Point &a, const Point &b)
 {
-	line(a.x(), tailleDeFenetre - a.y(), b.x(), tailleDeFenetre - b.y());
+	line(a.x() / 35, tailleDeFenetre - a.y() / 35, b.x() / 35, tailleDeFenetre - b.y() / 35);
 }
 
 // trace la carte C dans une fenêtre graphique
