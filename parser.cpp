@@ -142,12 +142,6 @@ std::tuple<vector<GLfloat>, vector<GLuint>> Parser::carteEnVerticesIndices(const
             float colorR = 255;
             float colorB = 255;
         }
-        //else if (sommet->coordonnees().z() == maxZValue) { // Display white for the last triangle
-        //    float colorR = 255;
-        //    float colorG = 255;
-        //    float colorB = 255;
-        //}
-        
 
         vertices.insert(vertices.end(), { (float)sommet->coordonnees().x() / maxXYValue, (float)sommet->coordonnees().y() / maxXYValue, (float)sommet->coordonnees().z() / maxXYValue, colorR, colorG, colorB });
     }

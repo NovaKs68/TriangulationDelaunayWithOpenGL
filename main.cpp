@@ -13,7 +13,6 @@
 #include "affichage.h"
 #include "parser.h"
 
-#include"Texture.h"
 #include"shaderClass.h"
 #include"VAO.h"
 #include"VBO.h"
@@ -114,9 +113,7 @@ void delaunay(Carte& C) {
 		auto c = premierDemiCote->suivant()->oppose()->coordonnees();
 		auto d = premierDemiCote->precedent()->oppose()->coordonnees();
 
-		auto dansCercle = d.dansCercle(a, b, c);
-
-		if (dansCercle > 0) {
+		if (d.dansCercle(a, b, c) > 0) {
 
 			if (premierDemiCote->suivant()->oppose()->marque() == 0) {
 				premierDemiCote->suivant()->changeMarque(1);
@@ -166,29 +163,41 @@ int main()
 	std::sort(nuagePoints.begin(), nuagePoints.end(), sortPoints);
 	nuagePoints.erase(unique(nuagePoints.begin(), nuagePoints.end()), nuagePoints.end());
 
-	// Triangule
-	C = triangulation(nuagePoints, C);
-	delaunay(C);
-
 	// Affiche tous les points sur la fenêtre
 	// (agrandissement de la fenêtre pour que tous les points soient visibles)
 	opengraphsize(tailleDeFenetre + 50, tailleDeFenetre + 50);
 
+	// Display all points
+	/*for (size_t i = 0; i < nuagePoints.size(); i++)
+	{
+		plot(nuagePoints[i].x(), tailleDeFenetre - nuagePoints[i].y());
+		
+	}
+	getch();*/
+
+	// Triangule
+	C = triangulation(nuagePoints, C);
+	cleardevice();
+	trace(C);
+	getch();
+
+	// To delaunay
+	delaunay(C);
+	cleardevice();
+	trace(C);
+	getch();
+
 	// Create file obj with triangulation
 	parser.carteEnOBJ(C, cheminAccesOBJ);
-
-	trace(C);
 
 	// Initialize indices and vertices with the triangulation
 	std::tuple<vector<GLfloat>, vector<GLuint>> verticesIndices = parser.carteEnVerticesIndices(C);
 
-	// GLfloat* a = vertices.data();
 	GLfloat vertices[100000];
 	for (int i = 0; i < std::get<0>(verticesIndices).size(); i++)
 	{
 		vertices[i] = std::get<0>(verticesIndices)[i];
 	}
-	// GLuint* b = indices.data();
 	GLuint indices[100000];
 	for (int i = 0; i < std::get<1>(verticesIndices).size(); i++)
 	{
@@ -301,8 +310,6 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-
-
 
 	// Delete all the objects we've created
 	VAO1.Delete();

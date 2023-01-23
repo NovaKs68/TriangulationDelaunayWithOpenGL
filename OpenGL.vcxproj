@@ -146,7 +146,6 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="stb.cpp" />
-    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
     <ClCompile Include="winbgi.cpp" />
@@ -163,7 +162,6 @@
     <ClInclude Include="parser.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="shaderClass.h" />
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>
